@@ -67,7 +67,7 @@ apply_hooks() {
   local hook_entry
   hook_entry=$(jq -n --arg cmd "$HOOK_SCRIPT" '{"matcher": "", "hooks": [{"type": "command", "command": $cmd}]}')
 
-  for event in Notification UserPromptSubmit SessionEnd Stop StopFailure PermissionRequest; do
+  for event in Notification UserPromptSubmit SessionEnd Stop StopFailure PermissionRequest PostToolUse; do
     if has_our_hook "$settings" "$event"; then
       continue
     fi
@@ -89,7 +89,7 @@ remove_hooks() {
   local settings
   settings=$(cat "$SETTINGS_FILE")
 
-  for event in Notification UserPromptSubmit SessionEnd Stop StopFailure PermissionRequest; do
+  for event in Notification UserPromptSubmit SessionEnd Stop StopFailure PermissionRequest PostToolUse; do
     settings=$(echo "$settings" | jq --arg cmd "$HOOK_SCRIPT" \
       "if .hooks[\"$event\"] then
         .hooks[\"$event\"] |= map(select(.hooks | all(.command != \$cmd)))

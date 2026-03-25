@@ -36,9 +36,13 @@ log_debug "hook.sh: pane target is $PANE_TARGET"
 
 # Dispatch based on event
 case "$EVENT" in
-  UserPromptSubmit)
+  UserPromptSubmit|PostToolUse)
+    # UserPromptSubmit: user sent a new prompt
+    # PostToolUse: a tool just ran successfully — Claude is working
+    #   (also fires after user approves a permission, fixing the
+    #    PermissionRequest→approve→still-red bug)
     tmux set -p -t "$PANE_TARGET" @claude_state "active"
-    log_debug "hook.sh: set active on $PANE_TARGET"
+    log_debug "hook.sh: set active on $PANE_TARGET ($EVENT)"
     ;;
   Stop|StopFailure)
     # Stop fires reliably at end of every successful turn
