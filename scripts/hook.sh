@@ -40,7 +40,19 @@ case "$EVENT" in
     tmux set -p -t "$PANE_TARGET" @claude_state "active"
     log_debug "hook.sh: set active on $PANE_TARGET"
     ;;
+  Stop|StopFailure)
+    # Stop fires reliably at end of every successful turn
+    # StopFailure fires on API errors — Claude is still waiting for input
+    tmux set -p -t "$PANE_TARGET" @claude_state "waiting"
+    log_debug "hook.sh: set waiting on $PANE_TARGET ($EVENT)"
+    ;;
+  PermissionRequest)
+    # Fires reliably when permission dialog appears
+    tmux set -p -t "$PANE_TARGET" @claude_state "waiting"
+    log_debug "hook.sh: set waiting on $PANE_TARGET (permission request)"
+    ;;
   Notification)
+    # Backup: Notification is unreliable but still useful as a fallback
     NOTIFICATION_TYPE=$(echo "$INPUT" | jq -r '.notification_type // empty' 2>/dev/null) || exit 0
     case "$NOTIFICATION_TYPE" in
       permission_prompt|idle_prompt|elicitation_dialog)
