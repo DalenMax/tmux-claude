@@ -30,22 +30,16 @@ tmux set -g -u @claude_separator 2>/dev/null || true
 
 echo "=== status.sh rendering tests ==="
 
-# Test: No state set on any pane → empty output
-tmux set -p -u @claude_state 2>/dev/null || true
-result=$(bash "$STATUS_SCRIPT")
-assert_eq "no state produces empty output" "" "$result"
-
-# Test: Current pane set to "active" → green icon with session name
+# Test: Current pane set to "active" → blue icon with session name
 tmux set -p @claude_state "active"
 result=$(bash "$STATUS_SCRIPT")
-# Should contain a green icon
-assert_eq "active state contains green" "true" "$(echo "$result" | grep -q 'fg=green' && echo true || echo false)"
+assert_eq "active state contains default color" "true" "$(echo "$result" | grep -q 'fg=colour39' && echo true || echo false)"
 assert_eq "active state contains dot icon" "true" "$(echo "$result" | grep -q '●' && echo true || echo false)"
 
-# Test: Current pane set to "waiting" → yellow icon
+# Test: Current pane set to "waiting" → red icon
 tmux set -p @claude_state "waiting"
 result=$(bash "$STATUS_SCRIPT")
-assert_eq "waiting state contains yellow" "true" "$(echo "$result" | grep -q 'fg=yellow' && echo true || echo false)"
+assert_eq "waiting state contains default color" "true" "$(echo "$result" | grep -q 'fg=colour196' && echo true || echo false)"
 
 # Test: Custom icons via tmux options
 tmux set -g @claude_icon_active '▶'

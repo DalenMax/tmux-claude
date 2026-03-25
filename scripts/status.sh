@@ -10,8 +10,8 @@ source "$SCRIPT_DIR/utils.sh"
 # Read config options with defaults
 ICON_ACTIVE=$(get_option "@claude_icon_active" "●")
 ICON_WAITING=$(get_option "@claude_icon_waiting" "●")
-COLOR_ACTIVE=$(get_option "@claude_color_active" "green")
-COLOR_WAITING=$(get_option "@claude_color_waiting" "yellow")
+COLOR_ACTIVE=$(get_option "@claude_color_active" "colour39")
+COLOR_WAITING=$(get_option "@claude_color_waiting" "colour196")
 SHOW_SESSION=$(get_option "@claude_show_session_name" "yes")
 SEPARATOR=$(get_option "@claude_separator" " ")
 

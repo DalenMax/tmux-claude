@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
-# hook.sh — Claude Code hook handler for tmux-notification
+# hook.sh — Claude Code hook handler for tmux-claude
 # Called by Claude Code hooks. Reads JSON from stdin, sets @claude_state on the tmux pane.
+#
+# SAFETY: This script runs inside Claude Code's hook system. It MUST:
+# - Never hang (watchdog kills us after 10 seconds)
+# - Never output errors to stderr (redirected to /dev/null)
+# - Always exit 0 (never block Claude Code)
 
-# Intentional: set -e causes silent exit on any error, which is the desired behavior
-# for a hook script — we must never block Claude Code with error output.
-set -euo pipefail
+set -eo pipefail
+exec 2>/dev/null
+
+# Watchdog: kill ourselves after 10 seconds no matter what
+( sleep 10; kill $$ 2>/dev/null ) &
+WATCHDOG_PID=$!
+trap 'kill $WATCHDOG_PID 2>/dev/null; exit 0' EXIT
 
 # Check for jq
 if ! command -v jq &>/dev/null; then
@@ -14,11 +23,14 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
-# Read JSON from stdin
-INPUT=$(cat)
+# Read JSON from stdin with timeout (never hang on broken pipe)
+INPUT=""
+while IFS= read -r -t 5 line; do
+  INPUT="${INPUT}${line}"
+done
 
 # Parse hook event name
-EVENT=$(echo "$INPUT" | jq -r '.hook_event_name // empty' 2>/dev/null) || exit 0
+EVENT=$(echo "$INPUT" | jq -r '.hook_event_name // empty') || exit 0
 if [ -z "$EVENT" ]; then
   exit 0
 fi
@@ -57,7 +69,7 @@ case "$EVENT" in
     ;;
   Notification)
     # Backup: Notification is unreliable but still useful as a fallback
-    NOTIFICATION_TYPE=$(echo "$INPUT" | jq -r '.notification_type // empty' 2>/dev/null) || exit 0
+    NOTIFICATION_TYPE=$(echo "$INPUT" | jq -r '.notification_type // empty') || exit 0
     case "$NOTIFICATION_TYPE" in
       permission_prompt|idle_prompt|elicitation_dialog)
         tmux set -p -t "$PANE_TARGET" @claude_state "waiting"

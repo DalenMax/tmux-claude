@@ -4,7 +4,14 @@ A tmux plugin that shows when [Claude Code](https://claude.ai/code) needs your a
 
 When running Claude Code across multiple tmux sessions, this plugin displays compact status icons in your tmux status bar so you know which sessions are active and which are waiting for input — without switching panes.
 
+## Requirements
+
+- tmux
+- [jq](https://jqlang.github.io/jq/)
+
 ## Installation
+
+### With TPM (recommended)
 
 Add to `.tmux.conf`:
 
@@ -14,13 +21,21 @@ set -g @plugin 'DalenMax/tmux-claude'
 
 Press `prefix + I` to install. Restart Claude Code. Done.
 
-Everything is auto-configured — hooks, status bar, defaults. No manual setup needed.
+Everything is auto-configured — hooks, status bar, defaults.
 
-## Requirements
+### Manual
 
-- tmux (with [TPM](https://github.com/tmux-plugins/tpm))
-- [jq](https://jqlang.github.io/jq/)
-- [Claude Code](https://claude.ai/code) (with hook support)
+```bash
+git clone https://github.com/DalenMax/tmux-claude.git ~/.tmux/plugins/tmux-claude
+```
+
+Add to `.tmux.conf`:
+
+```bash
+run-shell ~/.tmux/plugins/tmux-claude/notification.tmux
+```
+
+Reload tmux (`prefix + r` or `tmux source ~/.tmux.conf`). Restart Claude Code.
 
 ## Status Icons
 
@@ -42,6 +57,14 @@ Claude Code hook event → hook.sh → sets tmux pane variable → status bar re
 ```
 
 Uses Claude Code's [hook system](https://docs.anthropic.com/en/docs/claude-code/hooks) to detect state changes. No daemons, no polling, no temp files. State updates are instant.
+
+### Safety
+
+The hook script is designed to never interfere with Claude Code:
+- 10-second watchdog kills the script if anything hangs
+- stdin read has a 5-second timeout (never blocks on broken pipes)
+- All errors are silently swallowed (stderr redirected to /dev/null)
+- Always exits 0
 
 ### Hook Events Used
 

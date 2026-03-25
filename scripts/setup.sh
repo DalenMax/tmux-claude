@@ -37,7 +37,11 @@ build_hooks_config() {
       "hooks": {
         "Notification": $entry,
         "UserPromptSubmit": $entry,
-        "SessionEnd": $entry
+        "SessionEnd": $entry,
+        "Stop": $entry,
+        "StopFailure": $entry,
+        "PermissionRequest": $entry,
+        "PostToolUse": $entry
       }
     }'
 }
