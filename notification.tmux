@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# notification.tmux — TPM entry point for tmux-notification plugin
-# Registers default option values for @claude_* options.
+# notification.tmux — TPM entry point for tmux-claude plugin
+# Auto-configures everything: option defaults, status bar, and Claude Code hooks.
 
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -19,21 +19,26 @@ set_default() {
 
 set_default "@claude_icon_active" "●"
 set_default "@claude_icon_waiting" "●"
-set_default "@claude_color_active" "green"
-set_default "@claude_color_waiting" "yellow"
+set_default "@claude_color_active" "colour39"
+set_default "@claude_color_waiting" "colour196"
 set_default "@claude_show_session_name" "yes"
 set_default "@claude_separator" " "
 set_default "@claude_stale_check" "off"
 set_default "@claude_debug" "off"
 
-# Check if hooks are configured
+# Auto-enable second status bar with Claude status
+STATUS_SCRIPT="$CURRENT_DIR/scripts/status.sh"
+tmux set -g status 2
+tmux set -g 'status-format[1]' "#[align=right]#(${STATUS_SCRIPT})"
+
+# Auto-configure Claude Code hooks (idempotent — safe to run every time)
 HOOK_SCRIPT="$CURRENT_DIR/scripts/hook.sh"
 SETTINGS_FILE="$HOME/.claude/settings.json"
 
 if [ -f "$SETTINGS_FILE" ]; then
   if ! grep -q "$HOOK_SCRIPT" "$SETTINGS_FILE" 2>/dev/null; then
-    tmux display-message "tmux-notification: Run $CURRENT_DIR/scripts/setup.sh --apply to configure Claude Code hooks"
+    "$CURRENT_DIR/scripts/setup.sh" --apply >/dev/null 2>&1
   fi
 else
-  tmux display-message "tmux-notification: Run $CURRENT_DIR/scripts/setup.sh --apply to configure Claude Code hooks"
+  "$CURRENT_DIR/scripts/setup.sh" --apply >/dev/null 2>&1
 fi
