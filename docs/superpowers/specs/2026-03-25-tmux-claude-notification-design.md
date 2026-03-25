@@ -67,6 +67,20 @@ Three Claude Code hooks, all pointing to the same `hook.sh`:
 
 Hooks are configured globally in `~/.claude/settings.json`. They fire for all Claude Code instances. The hook script determines which tmux pane it belongs to.
 
+### hook.sh Dispatch Logic
+
+All three hooks point to the same `hook.sh`. The script reads `hook_event_name` from stdin JSON to dispatch:
+
+```
+hook_event_name == "UserPromptSubmit"  → set @claude_state "active"
+hook_event_name == "Notification"      → read notification_type:
+                                           permission_prompt → set @claude_state "waiting"
+                                           idle_prompt       → set @claude_state "waiting"
+                                           elicitation_dialog → set @claude_state "waiting"
+                                           auth_success      → ignore (no-op)
+hook_event_name == "SessionEnd"        → unset @claude_state
+```
+
 ### Hook JSON Payloads
 
 Each hook receives JSON on stdin. Common fields for all events:
@@ -121,7 +135,7 @@ The hook script must map itself to a tmux pane. Claude Code hooks do NOT expose 
 pane_map=$(tmux list-panes -a -F '#{pane_pid} #{session_name}:#{window_index}.#{pane_index}')
 
 pid=$$
-max_depth=50
+max_depth=50  # Generous headroom; typical depth is 4-8 levels
 i=0
 while [ "$pid" -gt 1 ] && [ "$i" -lt "$max_depth" ]; do
   match=$(echo "$pane_map" | awk -v p="$pid" '$1 == p {print $2}')
@@ -163,7 +177,7 @@ tmux set -p -t "$pane_target" @claude_state "waiting"
 proj1:#[fg=green]●#[default] proj2:#[fg=yellow]●
 ```
 
-**Stale state handling:** If `@claude_state` is set but no Claude process is running in that pane, the status script ignores it. Detection: check if any child process of the pane's shell PID has "claude" in its command name (`ps -o comm= -p $(pgrep -P <pane_pid>)` or similar). This is a best-effort heuristic — if Claude's process name changes, stale states will persist until the next `SessionEnd` or tmux restart.
+**Stale state handling:** Optional, controlled by `set -g @claude_stale_check 'off'` (default: off). When enabled, `status.sh` checks if any child process of the pane's shell PID has "claude" in its command name and ignores panes with no live Claude process. This spawns `pgrep` per pane per refresh, so it adds overhead that scales with pane count. When disabled (default), stale states persist until the next `SessionEnd` or tmux restart — acceptable since stale states self-correct on next Claude session.
 
 **tmux server restart:** All per-pane user variables are lost on tmux server restart. This is fine — they will be re-set on the next hook event. No persistence beyond tmux's lifetime is attempted.
 
@@ -264,9 +278,12 @@ set -g status-right '... #(~/.tmux/plugins/tmux-notification/scripts/status.sh) 
 **Merge strategy (`--apply`):**
 1. Read existing `~/.claude/settings.json` (or start with `{}` if absent)
 2. For each hook event (Notification, UserPromptSubmit, SessionEnd):
+   - Check if an entry with the same `command` path already exists in the array — if so, skip (idempotent)
    - If the event key exists, append our hook entry to the array (do not overwrite existing hooks)
    - If the event key does not exist, create it with our hook entry
 3. Write back with `jq` preserving all other settings
+
+Running `setup.sh --apply` multiple times is safe — it will not create duplicate entries.
 
 **Remove strategy (`--remove`):**
 1. Read existing `~/.claude/settings.json`
@@ -306,7 +323,7 @@ No other tmux plugins required. No runtime daemons. No external services.
 
 - **jq not installed:** `hook.sh` checks for `jq` on first line. If missing, exits silently (exit 0). `setup.sh` checks for `jq` and prints an error message with install instructions.
 - **tmux command fails:** `hook.sh` exits silently. Status bar shows nothing.
-- **Debug logging:** Controlled by tmux option `set -g @claude_debug 'on'`. When enabled, `hook.sh` appends to `/tmp/tmux-notification.log`. Off by default.
+- **Debug logging:** Controlled by tmux option `set -g @claude_debug 'on'`. When enabled, `hook.sh` appends to `/tmp/tmux-notification-$(id -u).log` (user-scoped to avoid multi-user conflicts). Off by default.
 
 ## Limitations & Edge Cases
 
