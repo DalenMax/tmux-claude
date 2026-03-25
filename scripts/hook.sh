@@ -61,4 +61,7 @@ case "$EVENT" in
     ;;
 esac
 
+# Force immediate status bar refresh so the change is visible instantly
+tmux refresh-client -S 2>/dev/null || true
+
 exit 0
