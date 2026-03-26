@@ -47,6 +47,7 @@ fi
 log_debug "hook.sh: pane target is $PANE_TARGET"
 
 # Dispatch based on event
+NEW_STATE=""
 case "$EVENT" in
   UserPromptSubmit|PostToolUse)
     # UserPromptSubmit: user sent a new prompt
@@ -60,11 +61,13 @@ case "$EVENT" in
     # Stop fires reliably at end of every successful turn
     # StopFailure fires on API errors — Claude is still waiting for input
     tmux set -p -t "$PANE_TARGET" @claude_state "waiting"
+    NEW_STATE="waiting"
     log_debug "hook.sh: set waiting on $PANE_TARGET ($EVENT)"
     ;;
   PermissionRequest)
     # Fires reliably when permission dialog appears
     tmux set -p -t "$PANE_TARGET" @claude_state "waiting"
+    NEW_STATE="waiting"
     log_debug "hook.sh: set waiting on $PANE_TARGET (permission request)"
     ;;
   Notification)
@@ -73,6 +76,7 @@ case "$EVENT" in
     case "$NOTIFICATION_TYPE" in
       permission_prompt|idle_prompt|elicitation_dialog)
         tmux set -p -t "$PANE_TARGET" @claude_state "waiting"
+        NEW_STATE="waiting"
         log_debug "hook.sh: set waiting on $PANE_TARGET ($NOTIFICATION_TYPE)"
         ;;
       *)
@@ -88,6 +92,11 @@ case "$EVENT" in
     log_debug "hook.sh: ignoring unknown event: $EVENT"
     ;;
 esac
+
+# Play sound when Claude needs attention
+if [ "$NEW_STATE" = "waiting" ]; then
+  play_notification_sound
+fi
 
 # Force immediate status bar refresh so the change is visible instantly
 tmux refresh-client -S 2>/dev/null || true

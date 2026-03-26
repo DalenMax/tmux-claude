@@ -113,6 +113,12 @@ set -g @claude_show_session_name 'yes'
 # Separator between entries (default: ' ')
 set -g @claude_separator ' '
 
+# Sound notification when Claude needs attention (default: off)
+set -g @claude_sound 'on'
+
+# Custom sound file (default: macOS system sound "Hero")
+set -g @claude_sound_file '/path/to/sound.aiff'
+
 # Debug logging (default: off)
 set -g @claude_debug 'on'
 ```

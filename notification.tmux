@@ -24,6 +24,8 @@ set_default "@claude_color_waiting" "colour214"
 set_default "@claude_show_session_name" "yes"
 set_default "@claude_separator" " "
 set_default "@claude_stale_check" "off"
+set_default "@claude_sound" "off"
+set_default "@claude_sound_file" ""
 set_default "@claude_debug" "off"
 
 # Auto-enable second status bar with Claude status

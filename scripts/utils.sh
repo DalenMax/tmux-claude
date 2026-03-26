@@ -50,6 +50,32 @@ find_pane_target() {
   done
 }
 
+# Play a notification sound when Claude enters waiting state.
+# Uses custom sound file if configured, otherwise falls back to macOS system sound, then tmux bell.
+play_notification_sound() {
+  local sound_enabled
+  sound_enabled=$(get_option "@claude_sound" "off")
+  [ "$sound_enabled" = "on" ] || return 0
+
+  local sound_file
+  sound_file=$(get_option "@claude_sound_file" "")
+
+  local sound
+  if [ -n "$sound_file" ] && [ -f "$sound_file" ]; then
+    sound="$sound_file"
+  elif [ -f /System/Library/Sounds/Hero.aiff ]; then
+    sound="/System/Library/Sounds/Hero.aiff"
+  fi
+
+  if [ -n "$sound" ] && command -v afplay &>/dev/null; then
+    afplay "$sound" &
+    disown
+  else
+    # Fallback: tmux bell
+    tmux run-shell 'printf "\a"' 2>/dev/null || true
+  fi
+}
+
 # Set up debug logging. Call once after sourcing utils.sh.
 # After this, log_debug is either a real function or a no-op.
 _CLAUDE_DEBUG=$(get_option "@claude_debug" "off")
