@@ -41,14 +41,14 @@ Reload tmux (`prefix + r` or `tmux source ~/.tmux.conf`). Restart Claude Code.
 
 A second status line appears at the bottom of your tmux with:
 
-| Dot | Color | Meaning |
-|-----|-------|---------|
-| :green_circle: | Green | Claude is working |
-| :large_blue_circle: | Blue | Claude needs your attention |
+| Icon | Color | Meaning |
+|------|-------|---------|
+| ▶ | Green | Claude is working |
+| ⏸ | Orange | Claude needs your attention |
 
-No dot = no Claude running in that session.
+No icon = no Claude running in that session.
 
-Example: `proj1:` :green_circle: `proj2:` :large_blue_circle: (proj1 active, proj2 waiting for input)
+Example: `proj1:` ▶ `proj2:` ⏸ (proj1 active, proj2 waiting for input)
 
 ## How It Works
 
@@ -85,13 +85,13 @@ State is stored in tmux per-pane user variables (`@claude_state`) — no externa
 All optional. Set in `.tmux.conf` before the plugin line:
 
 ```bash
-# Icons (default: ●)
-set -g @claude_icon_active '●'
-set -g @claude_icon_waiting '●'
+# Icons (default: ▶ / ⏸)
+set -g @claude_icon_active '▶'
+set -g @claude_icon_waiting '⏸'
 
-# Colors (default: green/blue)
+# Colors (default: green/orange)
 set -g @claude_color_active 'colour34'
-set -g @claude_color_waiting 'colour39'
+set -g @claude_color_waiting 'colour214'
 
 # Show session name prefix (default: yes)
 set -g @claude_show_session_name 'yes'
@@ -101,6 +101,58 @@ set -g @claude_separator ' '
 
 # Debug logging (default: off)
 set -g @claude_debug 'on'
+```
+
+### Icon Ideas
+
+Copy and paste any of these into your `.tmux.conf`:
+
+**Media-style (default)**
+```bash
+set -g @claude_icon_active '▶'
+set -g @claude_icon_waiting '⏸'
+```
+
+**Dots**
+```bash
+set -g @claude_icon_active '●'
+set -g @claude_icon_waiting '●'
+```
+
+**Lightning & Bell**
+```bash
+set -g @claude_icon_active '⚡'
+set -g @claude_icon_waiting '🔔'
+```
+
+**Diamonds**
+```bash
+set -g @claude_icon_active '◆'
+set -g @claude_icon_waiting '◇'
+```
+
+**Stars**
+```bash
+set -g @claude_icon_active '★'
+set -g @claude_icon_waiting '☆'
+```
+
+**Arrows**
+```bash
+set -g @claude_icon_active '↻'
+set -g @claude_icon_waiting '⏸'
+```
+
+**Blocks**
+```bash
+set -g @claude_icon_active '█'
+set -g @claude_icon_waiting '░'
+```
+
+**Minimal**
+```bash
+set -g @claude_icon_active '•'
+set -g @claude_icon_waiting '○'
 ```
 
 ## Uninstall

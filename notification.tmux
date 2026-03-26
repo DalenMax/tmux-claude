@@ -17,10 +17,10 @@ set_default() {
   fi
 }
 
-set_default "@claude_icon_active" "●"
-set_default "@claude_icon_waiting" "●"
+set_default "@claude_icon_active" "▶"
+set_default "@claude_icon_waiting" "⏸"
 set_default "@claude_color_active" "colour34"
-set_default "@claude_color_waiting" "colour39"
+set_default "@claude_color_waiting" "colour214"
 set_default "@claude_show_session_name" "yes"
 set_default "@claude_separator" " "
 set_default "@claude_stale_check" "off"

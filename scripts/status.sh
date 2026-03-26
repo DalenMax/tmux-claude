@@ -8,10 +8,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/utils.sh"
 
 # Read config options with defaults
-ICON_ACTIVE=$(get_option "@claude_icon_active" "●")
-ICON_WAITING=$(get_option "@claude_icon_waiting" "●")
+ICON_ACTIVE=$(get_option "@claude_icon_active" "▶")
+ICON_WAITING=$(get_option "@claude_icon_waiting" "⏸")
 COLOR_ACTIVE=$(get_option "@claude_color_active" "colour34")
-COLOR_WAITING=$(get_option "@claude_color_waiting" "colour39")
+COLOR_WAITING=$(get_option "@claude_color_waiting" "colour214")
 SHOW_SESSION=$(get_option "@claude_show_session_name" "yes")
 SEPARATOR=$(get_option "@claude_separator" " ")
 
