@@ -43,12 +43,12 @@ A second status line appears at the bottom of your tmux with:
 
 | Dot | Color | Meaning |
 |-----|-------|---------|
-| ● | Blue | Claude is working |
-| ● | Red | Claude needs your attention |
+| :green_circle: | Green | Claude is working |
+| :large_blue_circle: | Blue | Claude needs your attention |
 
 No dot = no Claude running in that session.
 
-Example: `proj1:● proj2:●` (proj1 active, proj2 waiting for input)
+Example: `proj1:` :green_circle: `proj2:` :large_blue_circle: (proj1 active, proj2 waiting for input)
 
 ## How It Works
 
@@ -89,9 +89,9 @@ All optional. Set in `.tmux.conf` before the plugin line:
 set -g @claude_icon_active '●'
 set -g @claude_icon_waiting '●'
 
-# Colors (default: blue/red)
-set -g @claude_color_active 'colour39'
-set -g @claude_color_waiting 'colour196'
+# Colors (default: green/blue)
+set -g @claude_color_active 'colour34'
+set -g @claude_color_waiting 'colour39'
 
 # Show session name prefix (default: yes)
 set -g @claude_show_session_name 'yes'
