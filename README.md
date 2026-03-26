@@ -2,7 +2,19 @@
 
 A tmux plugin that shows when [Claude Code](https://claude.ai/code) needs your attention in other tmux sessions/panes.
 
-When running Claude Code across multiple tmux sessions, this plugin displays compact status icons in your tmux status bar so you know which sessions are active and which are waiting for input — without switching panes.
+![demo](assets/demo.gif)
+
+## Why?
+
+If you use Claude Code inside tmux, you've probably run multiple sessions at once — one per project, one for tests, one for refactoring. The problem: you can't tell which Claude is working, which is stuck waiting for permission, and which finished five minutes ago. You end up cycling through panes just to check.
+
+**tmux-claude** fixes this. It hooks into Claude Code's event system and displays a live status icon per session in your tmux status bar. At a glance you can see:
+
+- Which sessions have Claude actively working (▶ green)
+- Which sessions need your input — permission prompts, completed responses, errors (⏸ orange)
+- Which sessions don't have Claude running at all (no icon)
+
+No polling, no daemons, no temp files. State updates are instant via Claude Code's native hook system. Install the plugin, restart Claude Code, and you're done.
 
 ## Requirements
 
