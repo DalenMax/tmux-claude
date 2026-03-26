@@ -62,6 +62,8 @@ No icon = no Claude running in that session.
 
 Example: `proj1:` ▶ `proj2:` ⏸ (proj1 active, proj2 waiting for input)
 
+![status icons example](assets/image-demo.png)
+
 ## How It Works
 
 ```
