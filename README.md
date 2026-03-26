@@ -116,7 +116,7 @@ set -g @claude_separator ' '
 # Sound notification when Claude needs attention (default: off)
 set -g @claude_sound 'on'
 
-# Custom sound file (default: macOS system sound "Hero")
+# Custom sound file (default: macOS system sound "Ping")
 set -g @claude_sound_file '/path/to/sound.aiff'
 
 # Debug logging (default: off)

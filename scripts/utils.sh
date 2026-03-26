@@ -63,8 +63,8 @@ play_notification_sound() {
   local sound
   if [ -n "$sound_file" ] && [ -f "$sound_file" ]; then
     sound="$sound_file"
-  elif [ -f /System/Library/Sounds/Hero.aiff ]; then
-    sound="/System/Library/Sounds/Hero.aiff"
+  elif [ -f /System/Library/Sounds/Ping.aiff ]; then
+    sound="/System/Library/Sounds/Ping.aiff"
   fi
 
   if [ -n "$sound" ] && command -v afplay &>/dev/null; then

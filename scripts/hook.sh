@@ -46,6 +46,9 @@ fi
 
 log_debug "hook.sh: pane target is $PANE_TARGET"
 
+# Get current state before changing it
+PREV_STATE=$(tmux show -p -t "$PANE_TARGET" -qv @claude_state 2>/dev/null || echo "")
+
 # Dispatch based on event
 NEW_STATE=""
 case "$EVENT" in
@@ -93,8 +96,8 @@ case "$EVENT" in
     ;;
 esac
 
-# Play sound when Claude needs attention
-if [ "$NEW_STATE" = "waiting" ]; then
+# Play sound only on transition to waiting (not if already waiting)
+if [ "$NEW_STATE" = "waiting" ] && [ "$PREV_STATE" != "waiting" ]; then
   play_notification_sound
 fi
 
