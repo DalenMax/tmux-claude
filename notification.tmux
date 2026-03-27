@@ -28,14 +28,14 @@ set_default "@claude_sound" "off"
 set_default "@claude_sound_file" ""
 set_default "@claude_debug" "off"
 
-# Auto-enable second status bar with Claude status
-# Only set status-format[1] if it doesn't already have content
+# Use the second status bar for Claude status.
+# Runs twice: now (in case we load last) and after a delay (in case theme overwrites us).
 STATUS_SCRIPT="$CURRENT_DIR/scripts/status.sh"
 tmux set -g status 2
-EXISTING_FORMAT=$(tmux show -gv 'status-format[1]' 2>/dev/null || echo "")
-if [ -z "$EXISTING_FORMAT" ] || echo "$EXISTING_FORMAT" | grep -Fq "$STATUS_SCRIPT"; then
-  tmux set -g 'status-format[1]' "#[align=right]#(${STATUS_SCRIPT})"
-fi
+tmux set -g 'status-format[1]' "#[align=right]#(${STATUS_SCRIPT})"
+
+# Re-apply after themes finish loading (themes may overwrite status-format[1])
+( sleep 2; tmux set -g 'status-format[1]' "#[align=right]#(${STATUS_SCRIPT})" ) &
 
 # Auto-configure Claude Code hooks (idempotent — safe to run every time)
 HOOK_SCRIPT="$CURRENT_DIR/scripts/hook.sh"
